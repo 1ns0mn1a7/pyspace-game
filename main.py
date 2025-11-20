@@ -10,11 +10,10 @@ from curses_tools import draw_frame, get_frame_size, read_controls
 TIC_TIMEOUT = 0.1
 
 
-async def blink(canvas, row, column, symbol='*'):
+async def blink(canvas, row, column, symbol='*', offset_tics=0):
     """Display blinking star at given position."""
 
-    delay = random.randint(0, 20)
-    for _ in range(delay):
+    for _ in range(offset_tics):
         await asyncio.sleep(0)
 
     while True:
@@ -114,7 +113,6 @@ def draw(canvas):
     ship_column = center_column - ship_columns // 2
 
     coroutines = []
-
     coroutines.append(animate_spaceship(canvas, ship_row, ship_column, frames))
     
     symbols = ['+', '*', '.', ':']
@@ -127,22 +125,22 @@ def draw(canvas):
         row = random.randint(1, height - 2)
         column = random.randint(1, width - 2)
         symbol = random.choice(symbols)
-
-        coroutine = blink(canvas, row, column, symbol)
+        offset = random.randint(0, 20)
+        
+        coroutine = blink(canvas, row, column, symbol, offset_tics=offset)
         coroutines.append(coroutine)
-    
+
     while True:
         alive_coroutines = []
-        
+
         for coroutine in coroutines:
             try:
                 coroutine.send(None)
                 alive_coroutines.append(coroutine)
             except StopIteration:
                 pass
-            
+
         coroutines = alive_coroutines
-            
         canvas.refresh()
         time.sleep(TIC_TIMEOUT)
 
