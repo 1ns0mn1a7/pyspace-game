@@ -114,10 +114,10 @@ def draw(canvas):
 
     coroutines = []
     coroutines.append(animate_spaceship(canvas, ship_row, ship_column, frames))
-    
+
     symbols = ['+', '*', '.', ':']
     stars = random.randint(100, 200)
-    
+
     shot = fire(canvas, center_row, center_column)
     coroutines.append(shot)
 
@@ -126,21 +126,17 @@ def draw(canvas):
         column = random.randint(1, width - 2)
         symbol = random.choice(symbols)
         offset = random.randint(0, 20)
-        
+
         coroutine = blink(canvas, row, column, symbol, offset_tics=offset)
         coroutines.append(coroutine)
 
     while True:
-        alive_coroutines = []
-
-        for coroutine in coroutines:
+        for coroutine in coroutines[:]:
             try:
                 coroutine.send(None)
-                alive_coroutines.append(coroutine)
             except StopIteration:
-                pass
+                coroutines.remove(coroutine)
 
-        coroutines = alive_coroutines
         canvas.refresh()
         time.sleep(TIC_TIMEOUT)
 
